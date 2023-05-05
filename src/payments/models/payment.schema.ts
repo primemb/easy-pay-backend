@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { AbstractDocument } from 'src/database/abstract.schema';
 import { PaymentStatus } from '../enums/status.enum';
 
-@Schema()
+@Schema({ timestamps: true })
 export class PaymentDocument extends AbstractDocument {
   @Prop()
   amount: number;
@@ -14,19 +14,16 @@ export class PaymentDocument extends AbstractDocument {
   description: string;
 
   @Prop({ enum: PaymentStatus, default: PaymentStatus.PENDING })
-  status: string;
+  status?: string;
 
   @Prop()
   gateway: string;
 
-  @Prop()
+  @Prop({ unique: true })
   gatewayId: string;
 
   @Prop()
-  createdAt: Date;
-
-  @Prop()
-  updatedAt: Date;
+  paymentUrl: string;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(PaymentDocument);

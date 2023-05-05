@@ -15,7 +15,7 @@ export class GatewaysService {
     const service = this.gatewayService.find((g) => g.name === name);
 
     if (!service) {
-      throw new BadGatewayException();
+      throw new BadGatewayException("Gateway doesn't exist");
     }
 
     return service;
