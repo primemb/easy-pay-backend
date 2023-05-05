@@ -23,7 +23,14 @@ export class PaymentsService {
   }: CreatePaymentDto) {
     const gate = this.gateways.getGatewayByName(gateway);
 
-    const { gatewayId, paymentUrl } = await gate.createPayment(amount, backurl);
+    const { gatewayId, paymentUrl } = await gate.createPayment({
+      amount,
+      backurl,
+      payload: {
+        description,
+        currency,
+      },
+    });
 
     return this.paymentRepository.create({
       amount,

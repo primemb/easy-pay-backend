@@ -1,14 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { GatewayService } from '../../abstarct.gateway.service';
 import zarinpalConfig from './config/zarinpal.config';
 import { ConfigType } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
+import {
+  ICreatePayment,
+  ICreatePaymentReturn,
+} from '../../interfaces/create-payment.interface';
+import { catchError, firstValueFrom } from 'rxjs';
+import { isAxiosError } from 'axios';
 
 type ZarinpalConfig = ConfigType<typeof zarinpalConfig>;
 
 @Injectable()
 export class ZarinpalGateWayService extends GatewayService {
   readonly name: string = 'Zarinpal';
+  private readonly zarinpalUrl: string =
+    'https://api.zarinpal.com/pg/v4/payment/request.json';
 
   constructor(
     @Inject(zarinpalConfig.KEY)
@@ -18,11 +26,39 @@ export class ZarinpalGateWayService extends GatewayService {
     super();
   }
 
-  createPayment(
-    amount: number,
-    backurl: string,
-  ): Promise<{ paymentUrl: string; gatewayId: string }> {
-    throw new Error('Method not implemented.');
+  async createPayment({
+    amount,
+    backurl,
+    payload,
+  }: ICreatePayment): Promise<ICreatePaymentReturn> {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .post(this.zarinpalUrl, {
+          merchant_id: this.zarinpalConfig.ZARINPAL_MERCHENT_ID,
+          amount,
+          description: payload.description,
+          currency: payload.currency,
+          callback_url: backurl,
+        })
+        .pipe(
+          catchError((err) => {
+            console.log(err.response.data);
+            if (isAxiosError(err)) {
+              if (err.response.data.errors.message) {
+                throw new BadRequestException(err.response.data.errors.message);
+              }
+            }
+            throw err;
+          }),
+        ),
+    );
+    console.log(data);
+    const paymentUrl = `https://www.zarinpal.com/pg/StartPay/${data.authority}`;
+
+    return {
+      paymentUrl,
+      gatewayId: data.authority,
+    };
   }
   verifyPayment(invoiceId: string, amount: number): Promise<boolean> {
     throw new Error('Method not implemented.');
