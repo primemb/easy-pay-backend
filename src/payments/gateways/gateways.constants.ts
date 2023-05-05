@@ -1,0 +1,1 @@
+export const GATEWAYS_LIST = 'GATEWAYS_LIST';
