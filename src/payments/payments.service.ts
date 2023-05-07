@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { GatewaysService } from './gateways/gateways.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { PaymentRepository } from './payment.repository';
@@ -14,8 +14,16 @@ export class PaymentsService {
     return this.gateways.getAllGatewaysNames();
   }
 
-  getPayments() {
+  findAll() {
     return this.paymentRepository.find({});
+  }
+
+  async findOne(id: string) {
+    const payment = this.paymentRepository.findOne({ _id: id });
+    if (!payment) {
+      throw new NotFoundException();
+    }
+    return payment;
   }
 
   async create({

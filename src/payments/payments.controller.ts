@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Auth } from 'src/admin/auth/decorators/admin-decorator';
@@ -14,6 +22,7 @@ export class PaymentsController {
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   create(@Body() body: CreatePaymentDto) {
     return this.paymentsService.create(body);
   }
@@ -21,6 +30,12 @@ export class PaymentsController {
   @Get()
   @Auth(AuthType.Admin)
   getPayments() {
-    return this.paymentsService.getPayments();
+    return this.paymentsService.findAll();
+  }
+
+  @Get('/:id')
+  @Auth(AuthType.Admin)
+  getPaymentById(@Param() id: string) {
+    return this.paymentsService.findOne(id);
   }
 }
