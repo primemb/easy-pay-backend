@@ -10,6 +10,7 @@ import { REQUEST_USER_KEY } from '../auth.constants';
 import { JwtService } from '@nestjs/jwt';
 import jwtConfig from '../config/jwt.config';
 import { ConfigType } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class AdminGuard implements CanActivate {
@@ -17,6 +18,7 @@ export class AdminGuard implements CanActivate {
     private readonly jwtService: JwtService,
     @Inject(jwtConfig.KEY)
     private readonly jwtConfiguration: ConfigType<typeof jwtConfig>,
+    private readonly reflector: Reflector,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

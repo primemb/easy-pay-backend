@@ -14,6 +14,10 @@ export class PaymentsService {
     return this.gateways.getAllGatewaysNames();
   }
 
+  getPayments() {
+    return this.paymentRepository.find({});
+  }
+
   async create({
     amount,
     description,

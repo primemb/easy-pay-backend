@@ -10,6 +10,8 @@ import jwtConfig from './config/jwt.config';
 import { HashingService } from './hashing/hashing.service';
 import { BcryptService } from './hashing/bcrypt.service';
 import { AdminGuard } from './guards/admin-guard.guard';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthenticationGuard } from './guards/authentication.guard';
 
 @Module({
   imports: [
@@ -25,7 +27,10 @@ import { AdminGuard } from './guards/admin-guard.guard';
     AdminRepository,
     AdminGuard,
     { provide: HashingService, useClass: BcryptService },
+    {
+      provide: APP_GUARD,
+      useClass: AuthenticationGuard,
+    },
   ],
-  exports: [AdminGuard],
 })
 export class AuthModule {}
