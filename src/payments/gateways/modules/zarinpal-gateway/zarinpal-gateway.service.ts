@@ -13,6 +13,7 @@ import { IZarinaplRequestResponse } from './interfaces/zarinpal.interface';
 
 @Injectable()
 export class ZarinpalGateWayService extends GatewayService {
+  protected _enabled: boolean;
   readonly name: string = 'Zarinpal';
   private readonly zarinpalUrl: string =
     'https://api.zarinpal.com/pg/v4/payment/request.json';
@@ -23,6 +24,15 @@ export class ZarinpalGateWayService extends GatewayService {
     private readonly httpService: HttpService,
   ) {
     super();
+    this._enabled = true;
+  }
+
+  get enable() {
+    return this._enabled;
+  }
+
+  set enable(value: boolean) {
+    this._enabled = value;
   }
 
   async createPayment({
@@ -42,7 +52,6 @@ export class ZarinpalGateWayService extends GatewayService {
         .pipe(
           catchError((err) => {
             if (isAxiosError(err)) {
-              console.log(err.response.data);
               if (err.response.data.errors.message) {
                 throw new BadRequestException(err.response.data.errors.message);
               }
