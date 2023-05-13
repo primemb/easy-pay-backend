@@ -4,9 +4,11 @@ import { ZarinpalGateWayService } from './modules/zarinpal-gateway/zarinpal-gate
 import { GatewayService } from './abstarct.gateway.service';
 import { GatewaysService } from './gateways.service';
 import { GATEWAYS_LIST } from './gateways.constants';
+import { GatewaysController } from './gateways.controller';
 
 @Module({
   imports: [Gateways.ZarinpalGatewayModule],
+  controllers: [GatewaysController],
   providers: [
     {
       provide: GATEWAYS_LIST,
