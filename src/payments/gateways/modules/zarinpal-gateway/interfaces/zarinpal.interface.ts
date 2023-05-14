@@ -1,4 +1,4 @@
-export interface IZarinaplRequestResponse {
+export interface IZarinaplCreatepaymentResponse {
   data: {
     code: number;
     message: string;

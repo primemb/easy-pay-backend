@@ -9,7 +9,7 @@ import {
 } from '../../interfaces/create-payment.interface';
 import { catchError, firstValueFrom } from 'rxjs';
 import { isAxiosError } from 'axios';
-import { IZarinaplRequestResponse } from './interfaces/zarinpal.interface';
+import { IZarinaplCreatepaymentResponse } from './interfaces/zarinpal.interface';
 
 @Injectable()
 export class ZarinpalGateWayService extends GatewayService {
@@ -42,7 +42,7 @@ export class ZarinpalGateWayService extends GatewayService {
   }: ICreatePayment): Promise<ICreatePaymentReturn> {
     const { data } = await firstValueFrom(
       this.httpService
-        .post<IZarinaplRequestResponse>(this.zarinpalUrl, {
+        .post<IZarinaplCreatepaymentResponse>(this.zarinpalUrl, {
           merchant_id: this.zarinpalConfiguration.ZARINPAL_MERCHENT_ID,
           amount,
           description: payload.description,
