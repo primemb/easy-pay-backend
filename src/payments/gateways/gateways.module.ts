@@ -5,9 +5,10 @@ import { GatewayService } from './abstarct.gateway.service';
 import { GatewaysService } from './gateways.service';
 import { GATEWAYS_LIST } from './gateways.constants';
 import { GatewaysController } from './gateways.controller';
+import { PaypingModule } from './modules/payping/payping.module';
 
 @Module({
-  imports: [Gateways.ZarinpalGatewayModule],
+  imports: [Gateways.ZarinpalGatewayModule, PaypingModule],
   controllers: [GatewaysController],
   providers: [
     {
