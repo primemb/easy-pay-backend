@@ -30,8 +30,10 @@ export class PaymentsService {
     amount,
     description,
     gateway,
-    currency,
+    email,
+    mobile,
     backurl,
+    currency,
   }: CreatePaymentDto) {
     const gate = this.gateways.getGatewayByName(gateway);
 
@@ -40,7 +42,8 @@ export class PaymentsService {
       backurl,
       payload: {
         description,
-        currency,
+        email,
+        mobile,
       },
     });
 

@@ -1,15 +1,25 @@
-import { IsNotEmpty, IsNumber, IsPositive, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  IsMobilePhone,
+} from 'class-validator';
 
 export class CreatePaymentDto {
   @IsNumber()
   @IsPositive()
   amount: number;
 
-  @IsString()
-  currency?: string;
+  @IsMobilePhone('fa-IR')
+  mobile: string;
+
+  @IsEmail()
+  email: string;
 
   @IsString()
-  @IsNotEmpty()
   description: string;
 
   @IsString()
@@ -18,4 +28,8 @@ export class CreatePaymentDto {
 
   @IsString()
   backurl: string;
+
+  @IsOptional()
+  @IsString()
+  currency?: string;
 }

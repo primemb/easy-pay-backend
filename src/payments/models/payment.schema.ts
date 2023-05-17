@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { AbstractDocument } from 'src/database/abstract.schema';
 import { PaymentStatus } from '../enums/status.enum';
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, versionKey: false })
 export class PaymentDocument extends AbstractDocument {
   @Prop()
   amount: number;
