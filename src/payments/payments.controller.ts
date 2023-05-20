@@ -11,6 +11,7 @@ import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Auth } from 'src/admin/auth/decorators/admin-decorator';
 import { AuthType } from 'src/admin/auth/enums/auth-type.enums';
+import { VerifyPaymentDto } from './dto/verify-payment.dto';
 
 @Controller('payments')
 export class PaymentsController {
@@ -25,6 +26,11 @@ export class PaymentsController {
   @HttpCode(HttpStatus.CREATED)
   create(@Body() body: CreatePaymentDto) {
     return this.paymentsService.create(body);
+  }
+
+  @Post('verify')
+  verify(@Body() body: VerifyPaymentDto) {
+    return this.paymentsService.verify(body);
   }
 
   @Get()

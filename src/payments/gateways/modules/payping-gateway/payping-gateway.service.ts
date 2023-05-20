@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import paypingConfig from './config/payping.config';
 import { ConfigType } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
@@ -11,8 +6,8 @@ import { GatewayService } from '../../abstarct.gateway.service';
 import { ICreatePaymentReturn } from '../../interfaces/create-payment.interface';
 import { ICreatePayment } from '../../interfaces/create-payment.interface';
 import { IPaypingCreatepaymentResponse } from './interfaces/payping.interface';
-import { catchError, firstValueFrom } from 'rxjs';
-import { isAxiosError } from 'axios';
+import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
+import { AxiosHelper } from 'src/utils/axios-helper';
 
 @Injectable()
 export class PaypingGatewayService extends GatewayService {
@@ -59,23 +54,7 @@ export class PaypingGatewayService extends GatewayService {
         )
         .pipe(
           catchError((err) => {
-            if (isAxiosError(err)) {
-              switch (err.response.status) {
-                case 400:
-                  throw new BadRequestException(err.response.data);
-                case 401:
-                  throw new UnauthorizedException(
-                    'Please check your payping token',
-                  );
-                case 403:
-                  throw new UnauthorizedException(
-                    'Please check your payping token',
-                  );
-                default:
-                  throw new BadRequestException(err.response.data);
-              }
-            }
-            throw err;
+            AxiosHelper.mapAxiosError(err);
           }),
         ),
     );
@@ -88,7 +67,27 @@ export class PaypingGatewayService extends GatewayService {
     };
   }
 
-  verifyPayment(invoiceId: string, amount: number): Promise<boolean> {
-    throw new Error('Method not implemented.');
+  async verifyPayment(invoiceId: string, amount: number): Promise<boolean> {
+    return lastValueFrom(
+      this.httpService
+        .post(
+          `${this.paypingUrl}pay/verify`,
+          {
+            amount,
+            refId: invoiceId,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${this.paypingConfiguration.PAYPING_TOKEN}`,
+            },
+          },
+        )
+        .pipe(map((res) => res.status === 200))
+        .pipe(
+          catchError((err) => {
+            AxiosHelper.mapAxiosError(err);
+          }),
+        ),
+    );
   }
 }
