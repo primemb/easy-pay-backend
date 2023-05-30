@@ -1,9 +1,4 @@
-import {
-  Inject,
-  Injectable,
-  NotFoundException,
-  forwardRef,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { GatewaysService } from './gateways/gateways.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { PaymentRepository } from './payment.repository';
@@ -12,7 +7,6 @@ import { Response } from 'express';
 @Injectable()
 export class PaymentsService {
   constructor(
-    @Inject(forwardRef(() => GatewaysService))
     private readonly gateways: GatewaysService,
     private readonly paymentRepository: PaymentRepository,
   ) {}
