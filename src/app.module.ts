@@ -18,6 +18,7 @@ import * as Joi from 'joi';
         JWT_REFRESH_TOKEN_TTL: Joi.number().required(),
         ZARINPAL_MERCHENT_ID: Joi.string().required(),
         PAYPING_TOKEN: Joi.string().required(),
+        SERVICE_ADDRESS: Joi.string().required(),
       }),
     }),
     DatabaseModule,

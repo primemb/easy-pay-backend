@@ -1,7 +1,7 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { GatewayService } from '../../abstarct.gateway.service';
 import zarinpalConfig from './config/zarinpal.config';
-import { ConfigType } from '@nestjs/config';
+import { ConfigService, ConfigType } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import {
   ICreatePayment,
@@ -22,8 +22,9 @@ export class ZarinpalGateWayService extends GatewayService {
     @Inject(zarinpalConfig.KEY)
     private readonly zarinpalConfiguration: ConfigType<typeof zarinpalConfig>,
     private readonly httpService: HttpService,
+    protected readonly configService: ConfigService,
   ) {
-    super();
+    super(configService);
     this._enabled = true;
   }
 
@@ -35,11 +36,10 @@ export class ZarinpalGateWayService extends GatewayService {
     this._enabled = value;
   }
 
-  async createPayment({
-    amount,
-    backurl,
-    payload,
-  }: ICreatePayment): Promise<ICreatePaymentReturn> {
+  async createPayment(
+    { amount, payload }: ICreatePayment,
+    backurl: string,
+  ): Promise<ICreatePaymentReturn> {
     const { data } = await firstValueFrom(
       this.httpService
         .post<IZarinaplCreatepaymentResponse>(this.zarinpalUrl, {

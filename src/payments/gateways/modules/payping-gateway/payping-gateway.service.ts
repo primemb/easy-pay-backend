@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import paypingConfig from './config/payping.config';
-import { ConfigType } from '@nestjs/config';
+import { ConfigService, ConfigType } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { GatewayService } from '../../abstarct.gateway.service';
 import { ICreatePaymentReturn } from '../../interfaces/create-payment.interface';
@@ -19,8 +19,9 @@ export class PaypingGatewayService extends GatewayService {
     @Inject(paypingConfig.KEY)
     private readonly paypingConfiguration: ConfigType<typeof paypingConfig>,
     private readonly httpService: HttpService,
+    protected readonly configService: ConfigService,
   ) {
-    super();
+    super(configService);
     this._enabled = true;
   }
 
@@ -32,11 +33,10 @@ export class PaypingGatewayService extends GatewayService {
     this._enabled = value;
   }
 
-  async createPayment({
-    amount,
-    backurl,
-    payload,
-  }: ICreatePayment): Promise<ICreatePaymentReturn> {
+  async createPayment(
+    { amount, payload }: ICreatePayment,
+    backurl: string,
+  ): Promise<ICreatePaymentReturn> {
     const { data } = await firstValueFrom(
       this.httpService
         .post<IPaypingCreatepaymentResponse>(

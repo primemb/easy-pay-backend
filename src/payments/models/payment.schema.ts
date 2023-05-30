@@ -24,6 +24,9 @@ export class PaymentDocument extends AbstractDocument {
 
   @Prop()
   paymentUrl: string;
+
+  @Prop()
+  backurl: string;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(PaymentDocument);

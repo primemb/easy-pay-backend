@@ -1,6 +1,5 @@
 export interface ICreatePayment {
   amount: number;
-  backurl: string;
   payload?: { [key: string]: any };
 }
 

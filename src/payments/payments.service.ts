@@ -38,9 +38,8 @@ export class PaymentsService {
   }: CreatePaymentDto) {
     const gate = this.gateways.getGatewayByName(gateway);
 
-    const { gatewayId, paymentUrl } = await gate.createPayment({
+    const { gatewayId, paymentUrl } = await gate.sendPaymentToGateway({
       amount,
-      backurl,
       payload: {
         description,
         email,
@@ -55,6 +54,7 @@ export class PaymentsService {
       currency: currency || 'IRT',
       gatewayId,
       paymentUrl,
+      backurl,
     });
   }
 
