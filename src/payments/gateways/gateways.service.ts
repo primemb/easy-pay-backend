@@ -19,7 +19,7 @@ export class GatewaysService {
 
   getGatewayByName(name: string) {
     const service = this.gatewayService.find(
-      (g) => g.name === name && g.enable,
+      (g) => g.name.toLowerCase() === name.toLowerCase() && g.enable,
     );
 
     if (!service) {

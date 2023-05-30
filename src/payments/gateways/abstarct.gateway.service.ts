@@ -4,6 +4,7 @@ import {
   ICreatePaymentReturn,
 } from './interfaces/create-payment.interface';
 import { ConfigService } from '@nestjs/config';
+import { IVerifyPayment } from './interfaces/verify-payment.interface';
 
 @Injectable()
 export abstract class GatewayService {
@@ -16,12 +17,12 @@ export abstract class GatewayService {
     args: ICreatePayment,
     backurl: string,
   ): Promise<ICreatePaymentReturn>;
-  abstract verifyPayment(invoiceId: string, amount: number): Promise<boolean>;
+  abstract verifyPayment(payload: any): Promise<IVerifyPayment>;
 
   sendPaymentToGateway(args: ICreatePayment) {
     const backurl =
       this.configService.get('SERVICE_ADDRESS') +
-      `/payments/verify/${this.name}`;
+      `payments/verify/${this.name}`;
 
     return this.createPayment(args, backurl);
   }

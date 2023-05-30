@@ -6,12 +6,13 @@ import {
   HttpStatus,
   Param,
   Post,
+  Res,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { Auth } from 'src/admin/auth/decorators/admin-decorator';
 import { AuthType } from 'src/admin/auth/enums/auth-type.enums';
-import { VerifyPaymentDto } from './dto/verify-payment.dto';
+import { Response } from 'express';
 
 @Controller('payments')
 export class PaymentsController {
@@ -28,9 +29,13 @@ export class PaymentsController {
     return this.paymentsService.create(body);
   }
 
-  @Post('verify')
-  verify(@Body() body: VerifyPaymentDto) {
-    return this.paymentsService.verify(body);
+  @Post('verify/:gatewayName')
+  verify(
+    @Body() body: any,
+    @Param('gatewayName') gatewayName: string,
+    @Res() res: Response,
+  ) {
+    return this.paymentsService.verify(body, gatewayName, res);
   }
 
   @Get()
@@ -41,7 +46,7 @@ export class PaymentsController {
 
   @Get('/:id')
   @Auth(AuthType.Admin)
-  getPaymentById(@Param() id: string) {
+  getPaymentById(@Param('id') id: string) {
     return this.paymentsService.findOne(id);
   }
 }

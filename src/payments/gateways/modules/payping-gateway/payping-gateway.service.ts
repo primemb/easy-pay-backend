@@ -1,17 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import paypingConfig from './config/payping.config';
 import { ConfigService, ConfigType } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
 import { GatewayService } from '../../abstarct.gateway.service';
 import { ICreatePaymentReturn } from '../../interfaces/create-payment.interface';
 import { ICreatePayment } from '../../interfaces/create-payment.interface';
-import { IPaypingCreatepaymentResponse } from './interfaces/payping.interface';
-import { catchError, firstValueFrom, lastValueFrom, map } from 'rxjs';
+import {
+  IPaypingCreatepaymentResponse,
+  IPaypingVerifyPaymentBody,
+} from './interfaces/payping.interface';
+import { catchError, firstValueFrom, lastValueFrom, map, of } from 'rxjs';
 import { AxiosHelper } from 'src/utils/axios-helper';
+import { IVerifyPayment } from '../../interfaces/verify-payment.interface';
+import { PaymentsService } from 'src/payments/payments.service';
 
 @Injectable()
 export class PaypingGatewayService extends GatewayService {
-  readonly name: string = 'Payping';
+  readonly name: string = 'payping';
   private readonly paypingUrl: string = 'https://api.payping.ir/v2/';
   protected _enabled: boolean;
 
@@ -19,6 +24,7 @@ export class PaypingGatewayService extends GatewayService {
     @Inject(paypingConfig.KEY)
     private readonly paypingConfiguration: ConfigType<typeof paypingConfig>,
     private readonly httpService: HttpService,
+    private readonly paymentsService: PaymentsService,
     protected readonly configService: ConfigService,
   ) {
     super(configService);
@@ -67,14 +73,27 @@ export class PaypingGatewayService extends GatewayService {
     };
   }
 
-  async verifyPayment(invoiceId: string, amount: number): Promise<boolean> {
-    return lastValueFrom(
+  async verifyPayment({
+    code,
+    refid,
+  }: IPaypingVerifyPaymentBody): Promise<IVerifyPayment> {
+    if (!code || !refid) {
+      throw new BadRequestException();
+    }
+
+    const payment = await this.paymentsService.findByGatwayId(code);
+
+    if (!payment) {
+      throw new BadRequestException();
+    }
+
+    const result = await lastValueFrom(
       this.httpService
         .post(
           `${this.paypingUrl}pay/verify`,
           {
-            amount,
-            refId: invoiceId,
+            amount: payment.amount,
+            refid,
           },
           {
             headers: {
@@ -84,10 +103,16 @@ export class PaypingGatewayService extends GatewayService {
         )
         .pipe(map((res) => res.status === 200))
         .pipe(
-          catchError((err) => {
-            AxiosHelper.mapAxiosError(err);
+          catchError(() => {
+            return of(false);
           }),
         ),
     );
+
+    return {
+      result,
+      code,
+      amount: payment.amount,
+    };
   }
 }

@@ -10,11 +10,12 @@ import {
 import { catchError, firstValueFrom } from 'rxjs';
 import { isAxiosError } from 'axios';
 import { IZarinaplCreatepaymentResponse } from './interfaces/zarinpal.interface';
+import { IVerifyPayment } from '../../interfaces/verify-payment.interface';
 
 @Injectable()
 export class ZarinpalGateWayService extends GatewayService {
   protected _enabled: boolean;
-  readonly name: string = 'Zarinpal';
+  readonly name: string = 'zarinpal';
   private readonly zarinpalUrl: string =
     'https://api.zarinpal.com/pg/v4/payment/request.json';
 
@@ -67,7 +68,7 @@ export class ZarinpalGateWayService extends GatewayService {
       gatewayId: data.data.authority,
     };
   }
-  verifyPayment(invoiceId: string, amount: number): Promise<boolean> {
+  verifyPayment(body: any): Promise<IVerifyPayment> {
     throw new Error('Method not implemented.');
   }
 }
