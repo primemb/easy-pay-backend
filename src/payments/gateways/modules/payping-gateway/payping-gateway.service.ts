@@ -9,10 +9,10 @@ import {
   IPaypingCreatepaymentResponse,
   IPaypingVerifyPaymentBody,
 } from './interfaces/payping.interface';
-import { catchError, firstValueFrom, lastValueFrom, map, of } from 'rxjs';
+import { catchError, lastValueFrom, map, of } from 'rxjs';
 import { AxiosHelper } from 'src/utils/axios-helper';
 import { IVerifyPayment } from '../../interfaces/verify-payment.interface';
-import { PaymentsService } from 'src/payments/payments.service';
+import { PaymentDocument } from 'src/payments/models/payment.schema';
 
 @Injectable()
 export class PaypingGatewayService extends GatewayService {
@@ -24,7 +24,6 @@ export class PaypingGatewayService extends GatewayService {
     @Inject(paypingConfig.KEY)
     private readonly paypingConfiguration: ConfigType<typeof paypingConfig>,
     private readonly httpService: HttpService,
-    private readonly paymentsService: PaymentsService,
     protected readonly configService: ConfigService,
   ) {
     super(configService);
@@ -43,7 +42,7 @@ export class PaypingGatewayService extends GatewayService {
     { amount, payload }: ICreatePayment,
     backurl: string,
   ): Promise<ICreatePaymentReturn> {
-    const { data } = await firstValueFrom(
+    const { data } = await lastValueFrom(
       this.httpService
         .post<IPaypingCreatepaymentResponse>(
           `${this.paypingUrl}pay`,
@@ -65,7 +64,7 @@ export class PaypingGatewayService extends GatewayService {
         ),
     );
 
-    const paymentUrl = `https://api.payping.ir/v2/pay/gotoipg/${data.code}`;
+    const paymentUrl = `${this.paypingUrl}pay/gotoipg/${data.code}`;
 
     return {
       paymentUrl,
@@ -73,17 +72,11 @@ export class PaypingGatewayService extends GatewayService {
     };
   }
 
-  async verifyPayment({
-    code,
-    refid,
-  }: IPaypingVerifyPaymentBody): Promise<IVerifyPayment> {
+  async verifyPayment(
+    paymentDocument: PaymentDocument,
+    { code, refid }: IPaypingVerifyPaymentBody,
+  ): Promise<IVerifyPayment> {
     if (!code || !refid) {
-      throw new BadRequestException();
-    }
-
-    const payment = await this.paymentsService.findByGatwayId(code);
-
-    if (!payment) {
       throw new BadRequestException();
     }
 
@@ -92,7 +85,7 @@ export class PaypingGatewayService extends GatewayService {
         .post(
           `${this.paypingUrl}pay/verify`,
           {
-            amount: payment.amount,
+            amount: paymentDocument.amount,
             refid,
           },
           {
@@ -111,8 +104,6 @@ export class PaypingGatewayService extends GatewayService {
 
     return {
       result,
-      code,
-      amount: payment.amount,
     };
   }
 }

@@ -3,6 +3,7 @@ import { GatewaysService } from './gateways/gateways.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { PaymentRepository } from './payment.repository';
 import { Response } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class PaymentsService {
@@ -27,6 +28,16 @@ export class PaymentsService {
     return payment;
   }
 
+  async findByUniqueId(uniqueId: string) {
+    const payment = await this.paymentRepository.findOne({
+      uniqueId: uniqueId,
+    });
+    if (!payment) {
+      throw new NotFoundException();
+    }
+    return payment;
+  }
+
   async findByGatwayId(gatewayId: string) {
     const payment = this.paymentRepository.findOne({ gatewayId: gatewayId });
     if (!payment) {
@@ -44,9 +55,11 @@ export class PaymentsService {
     backurl,
     currency,
   }: CreatePaymentDto) {
+    const uniqueId = uuidv4();
     const gate = this.gateways.getGatewayByName(gateway);
 
     const { gatewayId, paymentUrl } = await gate.sendPaymentToGateway({
+      paymentId: uniqueId,
       amount,
       payload: {
         description,
@@ -63,17 +76,27 @@ export class PaymentsService {
       gatewayId,
       paymentUrl,
       backurl,
+      uniqueId,
     });
   }
 
-  async verify(body: any, gatewayName: string, res: Response) {
-    const gate = this.gateways.getGatewayByName(gatewayName);
-    const result = await gate.verifyPayment(body);
-    const payment = await this.paymentRepository.findOne({
-      gatewayId: result.code,
-    });
-    return res.redirect(
-      `${payment.backurl}?status=${result.result}&code=${result.code}&amount=${payment.amount}`,
-    );
+  async verify(
+    body: any,
+    gatewayName: string,
+    uniqueId: string,
+    res: Response,
+  ) {
+    try {
+      console.log(uniqueId);
+      const paymentDocument = await this.findByUniqueId(uniqueId);
+      const gate = this.gateways.getGatewayByName(gatewayName);
+      const result = await gate.verifyPayment(paymentDocument, body);
+      return res.redirect(
+        `${paymentDocument.backurl}?status=${result.result}&uniqueId=${paymentDocument.uniqueId}&amount=${paymentDocument.amount}`,
+      );
+    } catch (error) {
+      console.log(error);
+      return res.json({ status: 'error', message: 'خطایی رخ داده است' });
+    }
   }
 }

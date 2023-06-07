@@ -1,4 +1,4 @@
-import { Module, forwardRef } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
 import { GatewaysModule } from './gateways/gateways.module';
@@ -8,7 +8,7 @@ import { PaymentRepository } from './payment.repository';
 
 @Module({
   imports: [
-    forwardRef(() => GatewaysModule),
+    GatewaysModule,
     DatabaseModule.forFeature([
       { name: PaymentDocument.name, schema: PaymentSchema },
     ]),

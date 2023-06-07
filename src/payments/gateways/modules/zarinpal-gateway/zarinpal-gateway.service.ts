@@ -7,10 +7,11 @@ import {
   ICreatePayment,
   ICreatePaymentReturn,
 } from '../../interfaces/create-payment.interface';
-import { catchError, firstValueFrom } from 'rxjs';
+import { catchError, lastValueFrom } from 'rxjs';
 import { isAxiosError } from 'axios';
 import { IZarinaplCreatepaymentResponse } from './interfaces/zarinpal.interface';
 import { IVerifyPayment } from '../../interfaces/verify-payment.interface';
+import { PaymentDocument } from 'src/payments/models/payment.schema';
 
 @Injectable()
 export class ZarinpalGateWayService extends GatewayService {
@@ -41,7 +42,7 @@ export class ZarinpalGateWayService extends GatewayService {
     { amount, payload }: ICreatePayment,
     backurl: string,
   ): Promise<ICreatePaymentReturn> {
-    const { data } = await firstValueFrom(
+    const { data } = await lastValueFrom(
       this.httpService
         .post<IZarinaplCreatepaymentResponse>(this.zarinpalUrl, {
           merchant_id: this.zarinpalConfiguration.ZARINPAL_MERCHENT_ID,
@@ -68,7 +69,11 @@ export class ZarinpalGateWayService extends GatewayService {
       gatewayId: data.data.authority,
     };
   }
-  verifyPayment(body: any): Promise<IVerifyPayment> {
+
+  verifyPayment(
+    payment: PaymentDocument,
+    payload: any,
+  ): Promise<IVerifyPayment> {
     throw new Error('Method not implemented.');
   }
 }

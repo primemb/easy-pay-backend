@@ -1,4 +1,5 @@
 export interface ICreatePayment {
+  paymentId: string;
   amount: number;
   payload?: { [key: string]: any };
 }

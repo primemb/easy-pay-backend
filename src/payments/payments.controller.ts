@@ -29,13 +29,14 @@ export class PaymentsController {
     return this.paymentsService.create(body);
   }
 
-  @Post('verify/:gatewayName')
+  @Post('verify/:gatewayName/:uniqueId')
   verify(
     @Body() body: any,
     @Param('gatewayName') gatewayName: string,
+    @Param('uniqueId') uniqueId: string,
     @Res() res: Response,
   ) {
-    return this.paymentsService.verify(body, gatewayName, res);
+    return this.paymentsService.verify(body, gatewayName, uniqueId, res);
   }
 
   @Get()
