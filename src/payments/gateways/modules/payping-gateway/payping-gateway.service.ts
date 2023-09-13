@@ -96,7 +96,8 @@ export class PaypingGatewayService extends GatewayService {
         )
         .pipe(map((res) => res.status === 200))
         .pipe(
-          catchError(() => {
+          catchError((error) => {
+            console.log({ response: error.response });
             return of(false);
           }),
         ),

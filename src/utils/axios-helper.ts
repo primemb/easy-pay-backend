@@ -1,9 +1,16 @@
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  UnauthorizedException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { isAxiosError } from 'axios';
+import { Logger } from '@nestjs/common';
 
 export class AxiosHelper {
+  private static readonly logger = new Logger(AxiosHelper.name);
+
   static mapAxiosError(error: any): never {
-    if (isAxiosError(error)) {
+    if (isAxiosError(error) && error.response) {
       switch (error.response.status) {
         case 400:
           throw new BadRequestException(error.response.data);
@@ -12,9 +19,15 @@ export class AxiosHelper {
         case 403:
           throw new UnauthorizedException('Please check your payping token');
         default:
-          throw new BadRequestException(error.response.data);
+          console.log(error.response.data);
+          throw new InternalServerErrorException(
+            "We're sorry, but something went wrong",
+          );
       }
     }
-    throw error;
+    AxiosHelper.logger.error(error);
+    throw new InternalServerErrorException(
+      "We're sorry, but something went wrong",
+    );
   }
 }

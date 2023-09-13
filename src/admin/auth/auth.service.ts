@@ -29,7 +29,7 @@ export class AuthService {
     });
 
     if (!admin) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('نام کاربری یا کلمه عبور اشتباه است');
     }
 
     const isPasswordMatch = await this.hashingService.compare(
@@ -38,7 +38,7 @@ export class AuthService {
     );
 
     if (!isPasswordMatch) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('نام کاربری یا کلمه عبور اشتباه است');
     }
 
     return this.generateToken(admin);
@@ -84,7 +84,8 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
-      expiresIn: this.jwtConfiguration.accessTokenTtl,
+      tokeExpiresIn: this.jwtConfiguration.accessTokenTtl,
+      refreshTokenExpiresIn: this.jwtConfiguration.refreshTokenTtl,
     };
   }
 
